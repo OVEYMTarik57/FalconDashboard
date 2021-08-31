@@ -25,6 +25,9 @@ object Settings {
     val maxCentripetalAcceleration = SimpleDoubleProperty(2.0)
     val ip = SimpleStringProperty("127.0.1.1")
     val trajectoryTime = SimpleStringProperty("Trajectory Time (s): ")
+    val pPID = SimpleDoubleProperty(0.0)
+    val iPID = SimpleDoubleProperty(0.0)
+    val dPID = SimpleDoubleProperty(0.0) 
 
     private val gson = GsonBuilder().registerTypeAdapter<Settings> {
         write {
@@ -39,6 +42,9 @@ object Settings {
             value(it.maxCentripetalAcceleration.value)
             value(it.ip.value)
             value(it.trajectoryTime.value)
+            value(it.pPID.value)
+            value(it.iPID.value)
+            value(it.dPID.value)     
             endArray()
         }
         read {
@@ -53,6 +59,9 @@ object Settings {
             maxCentripetalAcceleration.set(nextDouble())
             ip.set(nextString())
             trajectoryTime.set(nextString())
+            pPID.set(nextDouble())
+            iPID.set(nextDouble())
+            dPID.set(nextDouble())
             endArray()
             return@read Settings
         }

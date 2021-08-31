@@ -4,6 +4,7 @@ import javafx.scene.Parent
 import kfoenix.jfxtabpane
 import org.ghrobotics.falcondashboard.generator.GeneratorView
 import org.ghrobotics.falcondashboard.livevisualizer.LiveVisualizerView
+import org.ghrobotics.falcondashboard.PIDTune.PIDTuneView
 import tornadofx.View
 import tornadofx.plusAssign
 import tornadofx.tab
@@ -21,6 +22,11 @@ class MainView : View("FRC 7285 Sneaky Dashboard") {
         }
         tab("Live Visualizer") {
             this += LiveVisualizerView()
+            isClosable = false
+        }
+
+        tab("PID Tune") {
+            this += PIDTuneView()
             isClosable = false
         }
     }
