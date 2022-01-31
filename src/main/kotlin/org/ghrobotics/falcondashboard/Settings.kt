@@ -3,6 +3,7 @@ package org.ghrobotics.falcondashboard
 import com.github.salomonbrys.kotson.fromJson
 import com.github.salomonbrys.kotson.registerTypeAdapter
 import com.google.gson.GsonBuilder
+import javafx.beans.property.DoubleProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleStringProperty
@@ -27,7 +28,15 @@ object Settings {
     val trajectoryTime = SimpleStringProperty("Trajectory Time (s): ")
     val pPID = SimpleDoubleProperty(0.0)
     val iPID = SimpleDoubleProperty(0.0)
-    val dPID = SimpleDoubleProperty(0.0) 
+    val dPID = SimpleDoubleProperty(0.0)
+    val pSliderMin = SimpleDoubleProperty(0.0)
+    val pSliderMax = SimpleDoubleProperty(0.0)
+    val iSliderMin = SimpleDoubleProperty(0.0)
+    val iSliderMax = SimpleDoubleProperty(0.0)
+    val dSliderMin = SimpleDoubleProperty(0.0)
+    val dSliderMax = SimpleDoubleProperty(0.0)
+
+    val ipNetwork = SimpleStringProperty("127.0.0.1")
 
     private val gson = GsonBuilder().registerTypeAdapter<Settings> {
         write {
@@ -44,7 +53,15 @@ object Settings {
             value(it.trajectoryTime.value)
             value(it.pPID.value)
             value(it.iPID.value)
-            value(it.dPID.value)     
+            value(it.dPID.value)
+            value(it.pSliderMin.value)
+            value(it.pSliderMax.value)
+            value(it.iSliderMin.value)
+            value(it.iSliderMax.value)
+            value(it.dSliderMin.value)
+            value(it.dSliderMax.value)
+
+            value(it.ipNetwork.value)
             endArray()
         }
         read {
@@ -62,6 +79,14 @@ object Settings {
             pPID.set(nextDouble())
             iPID.set(nextDouble())
             dPID.set(nextDouble())
+            pSliderMin.set(nextDouble())
+            pSliderMax.set(nextDouble())
+            iSliderMax.set(nextDouble())
+            iSliderMin.set(nextDouble())
+            dSliderMin.set(nextDouble())
+            dSliderMax.set(nextDouble())
+
+            ipNetwork.set(nextString())
             endArray()
             return@read Settings
         }

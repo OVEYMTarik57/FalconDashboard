@@ -1,60 +1,63 @@
 package org.ghrobotics.falcondashboard.PIDTune
 
-import edu.wpi.first.wpilibj.geometry.Rotation2d
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator
-import edu.wpi.first.wpilibj.trajectory.constraint.CentripetalAccelerationConstraint
-import edu.wpi.first.wpilibj.util.Units
-import javafx.beans.property.SimpleObjectProperty
+
+//import org.ghrobotics.falcondashboard.Settings.pPIDSlider
+
+import edu.wpi.first.networktables.NetworkTable
+import edu.wpi.first.networktables.NetworkTableEntry
+import edu.wpi.first.networktables.NetworkTableInstance
 import javafx.geometry.Pos
+import javafx.scene.control.Label
+import javafx.scene.control.Slider
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
-import kfoenix.jfxbutton
-import kfoenix.jfxcheckbox
 import kfoenix.jfxtabpane
 import kfoenix.jfxtextfield
-import org.ghrobotics.falcondashboard.Settings.autoPathFinding
-import org.ghrobotics.falcondashboard.Settings.clampedCubic
-import org.ghrobotics.falcondashboard.Settings.endVelocity
-import org.ghrobotics.falcondashboard.Settings.maxAcceleration
-import org.ghrobotics.falcondashboard.Settings.maxCentripetalAcceleration
-import org.ghrobotics.falcondashboard.Settings.maxVelocity
-import org.ghrobotics.falcondashboard.Settings.name
-import org.ghrobotics.falcondashboard.Settings.reversed
-import org.ghrobotics.falcondashboard.Settings.startVelocity
-import org.ghrobotics.falcondashboard.Settings.pPID
-import org.ghrobotics.falcondashboard.Settings.iPID
-import org.ghrobotics.falcondashboard.Settings.dPID
-import org.ghrobotics.falcondashboard.createNumericalEntry
-import org.ghrobotics.falcondashboard.generator.charts.PositionChart
-import org.ghrobotics.falcondashboard.generator.charts.VelocityChart
-import org.ghrobotics.falcondashboard.generator.fragments.CodeFragment
-import org.ghrobotics.falcondashboard.generator.fragments.KtCodeFragment
-import org.ghrobotics.falcondashboard.generator.fragments.WaypointFragment
-import org.ghrobotics.falcondashboard.generator.tables.WaypointsTable
-import org.ghrobotics.lib.mathematics.epsilonEquals
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.twodim.trajectory.FalconTrajectoryConfig
-import org.ghrobotics.lib.mathematics.twodim.trajectory.optimization.PathFinder
-import org.ghrobotics.lib.mathematics.units.derived.acceleration
-import org.ghrobotics.lib.mathematics.units.derived.velocity
-import org.ghrobotics.lib.mathematics.units.feet
-import tornadofx.*
-
-import org.ghrobotics.falcondashboard.livevisualizer.charts.FieldChart
+import org.ghrobotics.falcondashboard.PIDTune.charts.VelocityGraphicChart
 import org.ghrobotics.falcondashboard.PIDTune.charts.PIDTuneChart
-import org.ghrobotics.falcondashboard.PIDTune.charts.GraphicChart
 
-
-
-
-
-
+import org.ghrobotics.falcondashboard.PIDTune.fragments.DSliderFragment
+import org.ghrobotics.falcondashboard.PIDTune.fragments.ISliderFragment
+import org.ghrobotics.falcondashboard.PIDTune.fragments.PSliderFragment
+import org.ghrobotics.falcondashboard.Settings.dPID
+import org.ghrobotics.falcondashboard.Settings.dSliderMax
+import org.ghrobotics.falcondashboard.Settings.dSliderMin
+import org.ghrobotics.falcondashboard.Settings.iPID
+import org.ghrobotics.falcondashboard.Settings.iSliderMax
+import org.ghrobotics.falcondashboard.Settings.iSliderMin
+import org.ghrobotics.falcondashboard.Settings.ipNetwork
+import org.ghrobotics.falcondashboard.Settings.pPID
+import org.ghrobotics.falcondashboard.Settings.pSliderMax
+import org.ghrobotics.falcondashboard.Settings.pSliderMin
+import org.ghrobotics.falcondashboard.createNumericalEntry
+import tornadofx.*
 
 
 
 class PIDTuneView : View() {
+
+    var pSlider: Slider by singleAssign()
+    var iSlider: Slider by singleAssign()
+    var dSlider: Slider by singleAssign()
+
+
+
+    /*
+    YAPILACAKLAR
+
+    Minler maxlardan küçük olmalı
+    Sliderda değiştirilen değer numerical entryde görünmüyor
+    Networktables çalışıyor mu kontrol edilecek
+
+
+
+    */
+
+
+    val a: Number = 0
+
+    val l = Label(" ")
 
     override val root = hbox {
         stylesheets += resources["/GeneratorStyle.css"]
@@ -73,94 +76,102 @@ class PIDTuneView : View() {
                 }
             }
 
+
+
             createNumericalEntry("Value of P (PID)", pPID)
-            createNumericalEntry("Value of I (PID)", iPID)
+             hbox(spacing = 5.0){
+                 label("P")
+                 pSlider = slider(min = pSliderMin.value, max = pSliderMax.value, value = pPID.value)
+
+             }
+             button {
+                 prefWidth = 270.0
+                 text = "P Slider Interval"
+                 action {
+                     find<PSliderFragment>().openModal(stageStyle = StageStyle.UTILITY)
+                 }
+             }
+
+
+             createNumericalEntry("Value of I (PID)", iPID)
+             hbox(spacing = 5.0){
+                 label("I")
+                 iSlider = slider(min = iSliderMin.value, max = iSliderMax.value, value = iPID.value)
+             }
+             button {
+                 prefWidth = 270.0
+                 text = "I Slider Interval"
+                 action {
+                     find<ISliderFragment>().openModal(stageStyle = StageStyle.UTILITY)
+                 }
+             }
+
+
             createNumericalEntry("Value of D (PID)", dPID)
+             hbox(spacing = 5.0){
+                 label("")
+                 dSlider = slider(min = dSliderMin.value, max = dSliderMax.value, value = dPID.value)
+             }
+             button {
+                 prefWidth = 270.0
+                 text = "D Slider Interval"
+                 action {
+                     find<DSliderFragment>().openModal(stageStyle = StageStyle.UTILITY)
+                 }
+             }
 
-           /*  jfxcheckbox {
-                paddingAll = 5
-                text = "Reversed"
-                bind(reversed)
-            }
-            jfxcheckbox {
-                paddingAll = 5
-                text = "Clamped Cubic"
-                bind(clampedCubic)
-            }
-            jfxcheckbox {
-                paddingAll = 5
-                text = "Auto Path Finding (Experimental)"
-                bind(autoPathFinding)
-            }
+             button {
+                 prefWidth = 270.0
+                 text = "Restart PID Value"
+                 action {
+                     pPID.value = 0.0
+                     iPID.value = 0.0
+                     dPID.value = 0.0
+                 }
+             }
 
-            createNumericalEntry("Start Velocity (f/s)", startVelocity)
-            createNumericalEntry("End Velocity (f/s)", endVelocity)
-            createNumericalEntry("Max Velocity (f/s)", maxVelocity)
-            createNumericalEntry("Max Acceleration (f/s/s)", maxAcceleration)
-            createNumericalEntry("Max Centripetal Acceleration (f/s/s)", maxCentripetalAcceleration)
 
-            this += WaypointsTable
+             /*
+             imageview("FalconDashboard/src/main/resources/mascot.jpg") {
 
-            vbox {
-                spacing = 5.0
-                jfxbutton {
-                    prefWidth = 290.0
-                    text = "Add Waypoint"
-                    action {
-                        find<WaypointFragment>().openModal(stageStyle = StageStyle.UTILITY)
-                    }
-                }
-                jfxbutton {
-                    prefWidth = 290.0
-                    text = "Remove Waypoint"
-                    action {
-                        WaypointsTable.removeSelectedItemIfPossible()
-                    }
-                }
-                jfxbutton {
-                    prefWidth = 290.0
-                    text = "Load from text"
-                    action {
-                        object : Fragment() {
-                            override val root = vbox {
+                 scaleX = .50
+                 scaleY = .50
+             }*/
 
-                                prefWidth = 600.0
-                                prefHeight = 200.0
 
-                                val textEntryArea = textarea {
-                                    prefWidth = 290.0
 
-                                    isWrapText = true
 
-                                    text = "                        Pose2d(11.75.feet, 25.689.feet, 0.0.degrees),\n" +
-                                            "                        Pose2d(20.383.feet, 18.592.feet, (-68).degrees)"
-                                }
-                                jfxbutton {
-                                    prefWidth = 290.0
-                                    text = "Load from text"
-                                    action {
-                                        WaypointsTable.loadFromText(textEntryArea.text)
-                                    }
-                                }
-                            }
-                        }.openModal(stageStyle = StageStyle.UTILITY)
-                    }
-                }
-                jfxbutton {
-                    prefWidth = 290.0
-                    text = "Generate JSON"
-                    action {
-                        find<CodeFragment>().openModal(stageStyle = StageStyle.UTILITY)
-                    }
-                }
-                jfxbutton {
-                    prefWidth = 290.0
-                    text = "Generate Code"
-                    action {
-                        find<KtCodeFragment>().openModal(stageStyle = StageStyle.UTILITY)
-                    }
-                }
-            } */
+
+
+
+
+
+
+
+
+             val falcon = NetworkTableInstance.create()
+             var p: NetworkTableEntry
+             var i: NetworkTableEntry
+             var d: NetworkTableEntry
+             val inst = NetworkTableInstance.getDefault()
+             val table: NetworkTable = falcon.getTable("falcon-dashboard")
+
+             falcon.startClient(ipNetwork.value)
+             p = table.getEntry("p")
+             i = table.getEntry("i")
+             d = table.getEntry("d")
+
+             fun pValue(): Double {
+                 return p.getDouble(pPID.value)
+             }
+             fun iValue(): Double {
+                 return i.getDouble(iPID.value)
+             }
+             fun dValue(): Double {
+                 return d.getDouble(dPID.value)
+             }
+
+
         } 
         jfxtabpane {
             maxWidth = Double.MAX_VALUE
@@ -168,28 +179,31 @@ class PIDTuneView : View() {
             style {
                 backgroundColor = multi(Color.LIGHTGRAY)
             }
-            tab("Position") {
+            /*tab("Map") {
                 hbox {
                     alignment = Pos.CENTER_LEFT
                     add(PIDTuneChart)
                 }
                 isClosable = false
-            }
+            }*/
             tab("Graphic") {
                 hbox {
                     alignment = Pos.CENTER_LEFT
-                    add(GraphicChart)
+                    add(VelocityGraphicChart)
                 }
                 isClosable = false
             }
+
             
             
         }
     }
 
-    
-        
-    
 
-    
 }
+
+
+
+
+
+
