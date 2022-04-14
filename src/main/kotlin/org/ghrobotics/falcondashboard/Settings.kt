@@ -26,15 +26,41 @@ object Settings {
     val maxCentripetalAcceleration = SimpleDoubleProperty(2.0)
     val ip = SimpleStringProperty("127.0.1.1")
     val trajectoryTime = SimpleStringProperty("Trajectory Time (s): ")
-    val pPID = SimpleDoubleProperty(0.0)
-    val iPID = SimpleDoubleProperty(0.0)
-    val dPID = SimpleDoubleProperty(0.0)
-    val pSliderMin = SimpleDoubleProperty(0.0)
-    val pSliderMax = SimpleDoubleProperty(0.0)
-    val iSliderMin = SimpleDoubleProperty(0.0)
-    val iSliderMax = SimpleDoubleProperty(0.0)
-    val dSliderMin = SimpleDoubleProperty(0.0)
-    val dSliderMax = SimpleDoubleProperty(0.0)
+
+    var mainString = SimpleStringProperty(null)
+    //P
+    var pPID = SimpleDoubleProperty(0.0)
+    var pSliderMin = SimpleDoubleProperty(0.0)
+    var pSliderMax = SimpleDoubleProperty(0.0)
+    var fpSliderMin = SimpleDoubleProperty(0.0)
+    var fpSliderMax = SimpleDoubleProperty(0.0)
+    var isPSliderMin = SimpleStringProperty("New P Slider Min Value")
+    var isPSliderMax = SimpleStringProperty("New P Slider Max Value")
+    var isPSliderValue = SimpleStringProperty("New P Slider Value")
+
+
+    //I
+    var iPID = SimpleDoubleProperty(0.0)
+    var iSliderMin = SimpleDoubleProperty(0.0)
+    var iSliderMax = SimpleDoubleProperty(0.0)
+    var fISliderMin = SimpleDoubleProperty(0.0)
+    var fISliderMax = SimpleDoubleProperty(0.0)
+    var isISliderMin = SimpleStringProperty("New I Slider Min Value")
+    var isISliderMax = SimpleStringProperty("New I Slider Max Value")
+    var isISliderValue = SimpleStringProperty("New I Slider Value")
+
+    //D
+    var dPID = SimpleDoubleProperty(0.0)
+    var dSliderMin = SimpleDoubleProperty(0.0)
+    var dSliderMax = SimpleDoubleProperty(0.0)
+    var fDSliderMin = SimpleDoubleProperty(0.0)
+    var fDSliderMax = SimpleDoubleProperty(0.0)
+    var isDSliderMin = SimpleStringProperty("New D Slider Min Value")
+    var isDSliderMax = SimpleStringProperty("New D Slider Max Value")
+    var isDSliderValue = SimpleStringProperty("New D Slider Value")
+
+    //Reset
+    var isSlidersReset = SimpleStringProperty("Slider Values is Reset")
 
     val ipNetwork = SimpleStringProperty("127.0.0.1")
 
@@ -60,6 +86,12 @@ object Settings {
             value(it.iSliderMax.value)
             value(it.dSliderMin.value)
             value(it.dSliderMax.value)
+            value(it.fpSliderMin.value)
+            value(it.fpSliderMax.value)
+            value(it.fISliderMin.value)
+            value(it.fISliderMax.value)
+            value(it.fDSliderMin.value)
+            value(it.fDSliderMax.value)
 
             value(it.ipNetwork.value)
             endArray()
@@ -85,6 +117,12 @@ object Settings {
             iSliderMin.set(nextDouble())
             dSliderMin.set(nextDouble())
             dSliderMax.set(nextDouble())
+            fpSliderMin.set(nextDouble())
+            fpSliderMax.set(nextDouble())
+            fISliderMax.set(nextDouble())
+            fISliderMin.set(nextDouble())
+            fDSliderMin.set(nextDouble())
+            fDSliderMax.set(nextDouble())
 
             ipNetwork.set(nextString())
             endArray()

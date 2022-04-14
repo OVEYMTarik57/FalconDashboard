@@ -6,7 +6,7 @@ import org.ghrobotics.falcondashboard.generator.fragments.InvalidTrajectoryFragm
 import tornadofx.App
 import tornadofx.find
 import tornadofx.launch
-import org.ghrobotics.falcondashboard.Settings.pPID
+import org.ghrobotics.falcondashboard.Settings.pSliderMin
 
 class Main : App(MainView::class) {
     init {
@@ -27,6 +27,5 @@ class Main : App(MainView::class) {
 
 fun main(args: Array<String>) {
     launch<Main>(args)
-    println(pPID)
 
 }

@@ -153,6 +153,7 @@ class GeneratorView : View() {
                     }
                 }
 
+                /*
                 jfxbutton {
                     prefWidth = 290.0
                     text = "Trigger waypoints"
@@ -162,6 +163,7 @@ class GeneratorView : View() {
                         triggerWaypoints()
                     }
                 }
+                */
 
                 jfxbutton {
                     prefWidth = 290.0
@@ -194,6 +196,8 @@ class GeneratorView : View() {
 
     companion object {
 
+        var isInitialized = true
+
         val waypoints = observableListOf(
             Pose2d(3.meters, 6.meters, Rotation2d()),
             Pose2d(5.meters, 7.5.meters, Rotation2d())
@@ -209,26 +213,6 @@ class GeneratorView : View() {
         val trajectory = SimpleObjectProperty(TrajectoryGenerator.generateTrajectory(waypoints, config))
 
         init {
-
-            /*
-            val timer = Timer("scheduler", true);
-            timer.schedule(5000)
-            {
-                triggerWaypoints()
-            }"
-            */
-
-            val loopSize = waypoints.size
-            for (idx in 0 until loopSize)
-            {
-                waypoints.add(0, waypoints[waypoints.lastIndex])
-                waypoints.removeAt(waypoints.lastIndex)
-                println(waypoints)
-            }
-
-            println("Initialized")
-            triggerWaypoints()
-
 
             waypoints.onChange { update() }
             reversed.onChange { update() }
@@ -276,32 +260,6 @@ class GeneratorView : View() {
             // TODO: Change robot width and height here
             // val mouseDrag = MouseDragEvent(MouseDragEvent.MOUSE_DRAGGED, 1.0, 2.0, 3.0, 4.0, MouseButton.PRIMARY, 1, true, true, true, true, true, true, true, true, true, true, null)
             // val mouseEvent = MouseEvent(MouseEvent.MOUSE_DRAGGED, 1.0, 2.0, 3.0, 4.0, MouseButton.PRIMARY, 1, false, false, false, false, true, false, false, true, true, true, null)
-
-            // WaypointsTable.fireEvent(Event(mouseEvent))
-            /*
-            Event.fireEvent(
-                EventTarget(GeneratorView), MouseEvent(
-                    MouseEvent.MOUSE_CLICKED,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0.0,
-                    MouseButton.PRIMARY,
-                    1,
-                    true,
-                    true,
-                    true,
-                    true,
-                    true,
-                    true,
-                    true,
-                    true,
-                    true,
-                    true,
-                    null
-                )
-            )
-            */
         }
     }
 }

@@ -9,9 +9,12 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.control.Slider
+import javafx.scene.input.KeyEvent
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
+import kfoenix.jfxbutton
 import kfoenix.jfxtabpane
 import kfoenix.jfxtextfield
 import org.ghrobotics.falcondashboard.PIDTune.charts.VelocityGraphicChart
@@ -20,18 +23,29 @@ import org.ghrobotics.falcondashboard.PIDTune.charts.PIDTuneChart
 import org.ghrobotics.falcondashboard.PIDTune.fragments.DSliderFragment
 import org.ghrobotics.falcondashboard.PIDTune.fragments.ISliderFragment
 import org.ghrobotics.falcondashboard.PIDTune.fragments.PSliderFragment
+import org.ghrobotics.falcondashboard.Settings
 import org.ghrobotics.falcondashboard.Settings.dPID
 import org.ghrobotics.falcondashboard.Settings.dSliderMax
 import org.ghrobotics.falcondashboard.Settings.dSliderMin
+import org.ghrobotics.falcondashboard.Settings.fpSliderMin
 import org.ghrobotics.falcondashboard.Settings.iPID
 import org.ghrobotics.falcondashboard.Settings.iSliderMax
 import org.ghrobotics.falcondashboard.Settings.iSliderMin
 import org.ghrobotics.falcondashboard.Settings.ipNetwork
+import org.ghrobotics.falcondashboard.Settings.isDSliderValue
+import org.ghrobotics.falcondashboard.Settings.isISliderValue
+import org.ghrobotics.falcondashboard.Settings.isPSliderMin
+import org.ghrobotics.falcondashboard.Settings.isPSliderValue
+import org.ghrobotics.falcondashboard.Settings.isSlidersReset
 import org.ghrobotics.falcondashboard.Settings.pPID
 import org.ghrobotics.falcondashboard.Settings.pSliderMax
 import org.ghrobotics.falcondashboard.Settings.pSliderMin
+import org.ghrobotics.falcondashboard.Settings.mainString
 import org.ghrobotics.falcondashboard.createNumericalEntry
+import org.ghrobotics.falcondashboard.generator.charts.PositionChart
+import org.ghrobotics.lib.mathematics.units.meters
 import tornadofx.*
+import java.beans.EventHandler
 
 
 
@@ -42,16 +56,10 @@ class PIDTuneView : View() {
     var dSlider: Slider by singleAssign()
 
 
-
     /*
     YAPILACAKLAR
 
-    Minler maxlardan küçük olmalı
-    Sliderda değiştirilen değer numerical entryde görünmüyor
     Networktables çalışıyor mu kontrol edilecek
-
-
-
     */
 
 
@@ -71,17 +79,29 @@ class PIDTuneView : View() {
             hbox {
                 paddingAll = 5
                 jfxtextfield {
-                   // bind(name)
+
                     prefWidth = 290.0
                 }
             }
+             text("Change: ") {
+                 alignment = Pos.CENTER_LEFT
+                 bind(mainString)
+             }
 
 
-
-            createNumericalEntry("Value of P (PID)", pPID)
+            createNumericalEntry("Value of P (PID)", pPID).addEventHandler(KeyEvent.KEY_PRESSED){
+                pSlider.value = pPID.value
+                mainString.set("Changed: " + isPSliderValue.value+ " " + pPID.value)
+            }
              hbox(spacing = 5.0){
                  label("P")
                  pSlider = slider(min = pSliderMin.value, max = pSliderMax.value, value = pPID.value)
+                 pSlider.addEventHandler(MouseEvent.MOUSE_DRAGGED){
+                     mainString.set("Changed: " + isPSliderValue.value+ " " + pPID.value)
+                     pPID.value = pSlider.value
+                     println(pPID.value)
+                 }
+
 
              }
              button {
@@ -93,10 +113,19 @@ class PIDTuneView : View() {
              }
 
 
-             createNumericalEntry("Value of I (PID)", iPID)
+             createNumericalEntry("Value of P (PID)", iPID).addEventHandler(KeyEvent.KEY_PRESSED){
+                 iSlider.value = iPID.value
+                 mainString.set("Changed: " + isISliderValue.value+ " " + iPID.value)
+             }
              hbox(spacing = 5.0){
                  label("I")
                  iSlider = slider(min = iSliderMin.value, max = iSliderMax.value, value = iPID.value)
+                 iSlider.addEventHandler(MouseEvent.MOUSE_DRAGGED){
+                     mainString.set("Changed: " + isISliderValue.value+ " " + iPID.value)
+                     iPID.value = iSlider.value
+                     println(iPID.value)
+                 }
+
              }
              button {
                  prefWidth = 270.0
@@ -107,10 +136,18 @@ class PIDTuneView : View() {
              }
 
 
-            createNumericalEntry("Value of D (PID)", dPID)
+             createNumericalEntry("Value of P (PID)", dPID).addEventHandler(KeyEvent.KEY_PRESSED){
+                 dSlider.value = dPID.value
+                 mainString.set("Changed: " + isDSliderValue.value+ " " + dPID.value)
+             }
              hbox(spacing = 5.0){
                  label("")
                  dSlider = slider(min = dSliderMin.value, max = dSliderMax.value, value = dPID.value)
+                 dSlider.addEventHandler(MouseEvent.MOUSE_DRAGGED){
+                     mainString.set("Changed: " + isDSliderValue.value+ " " + dPID.value)
+                     dPID.value = dSlider.value
+                     println(dPID.value)
+                 }
              }
              button {
                  prefWidth = 270.0
@@ -122,21 +159,22 @@ class PIDTuneView : View() {
 
              button {
                  prefWidth = 270.0
-                 text = "Restart PID Value"
+                 text = "Reset PID Value"
+                 mainString.set("Changed: " + isSlidersReset.value)
                  action {
                      pPID.value = 0.0
+                     pSlider.value = 0.0
                      iPID.value = 0.0
+                     iSlider.value = 0.0
                      dPID.value = 0.0
+                     dSlider.value = 0.0
                  }
              }
 
+             imageview("mascot300x300.png")
 
-             /*
-             imageview("FalconDashboard/src/main/resources/mascot.jpg") {
 
-                 scaleX = .50
-                 scaleY = .50
-             }*/
+
 
 
 

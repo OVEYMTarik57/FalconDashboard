@@ -15,6 +15,7 @@ import org.ghrobotics.falcondashboard.generator.GeneratorView
 import org.ghrobotics.falcondashboard.generator.charts.PositionChart.setOnMouseClicked
 import org.ghrobotics.falcondashboard.livevisualizer.charts.FieldChart
 import org.ghrobotics.falcondashboard.livevisualizer.charts.TurretNode
+import org.ghrobotics.falcondashboard.triggerWaypoints
 import org.ghrobotics.falcondashboard.ui
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Transform2d
@@ -44,6 +45,7 @@ object PositionChart : LineChart<Number, Number>(
     private val seriesWayPoints = Series<Number, Number>()
     val followerSeries = XYChart.Series<Number, Number>()
     var isTimerFinished = false
+    var triggered = false
 
     private fun euclideanDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
         return Math.sqrt(Math.pow(x1-x2, 2.0) + Math.pow(y1-y2, 2.0))
@@ -71,6 +73,15 @@ object PositionChart : LineChart<Number, Number>(
         data.add(seriesWayPoints)
         data.add(followerSeries)
 
+        PositionChart.setOnMouseEntered {
+            ui {
+                if(!triggered)
+                {
+                    triggerWaypoints()
+                    triggered = true
+                }
+            }
+        }
 
         // Add waypoint on double click
         setOnMouseClicked {
@@ -176,43 +187,6 @@ object PositionChart : LineChart<Number, Number>(
     }
 
 
-    // Live player
-    private fun getFollowerBoundingBox(center: Pose2d): Array<Pose2d> {
-        val tl = center.transformBy(
-            Transform2d(-Settings.robotLength.value.meters / 2, Settings.robotWidth.value.meters / 2, Rotation2d())
-        )
-
-        val tr = center.transformBy(
-            Transform2d(Settings.robotLength.value.meters / 2, Settings.robotWidth.value.meters / 2, Rotation2d())
-        )
-
-        val mid = center.transformBy(
-            // A little edge for the robot to see front clearly
-            Transform2d(Settings.robotLength.value.meters / 2.0 + 0.200.meters, 0.meters, Rotation2d())
-        )
-
-        val bl = center.transformBy(
-            Transform2d(-Settings.robotLength.value.meters / 2, -Settings.robotWidth.value.meters / 2, Rotation2d())
-        )
-
-        val br = center.transformBy(
-            Transform2d(Settings.robotLength.value.meters / 2, -Settings.robotWidth.value.meters / 2, Rotation2d())
-        )
-
-        return arrayOf(tl, tr, mid, br, bl, tl)
-    }
-
-    /*
-    private fun updateFollowerPose(pose2d: Pose2d) {
-        followerBoundingBoxSeries.data.clear()
-        getFollowerBoundingBox(pose2d).forEach {
-            followerBoundingBoxSeries.data(
-                it.translation.x_u.inMeters(),
-                it.translation.y_u.inMeters()
-            )
-        }
-    }
-    */
 
     private fun updateFollowerPose(pose2d: Pose2d) {
         followerSeries.data.clear()
@@ -229,6 +203,7 @@ object PositionChart : LineChart<Number, Number>(
         followerSeries.data.add(data)
     }
 
+    // Live Trajectory
     fun playTrajectory()
     {
         val duration = GeneratorView.trajectory.value.totalTimeSeconds
@@ -239,18 +214,13 @@ object PositionChart : LineChart<Number, Number>(
         timer.schedule(1000, 20)
         {
 
-            // println("Timer is called")
             if(t > duration)
             {
-                // ui { followerBoundingBoxSeries.data.clear() }
-                println(followerSeries.data)
                 ui { followerSeries.data.clear() }
-                println(followerSeries.data)
                 isTimerFinished = true
                 timer.cancel()
                 timer.purge()
             }
-            // println("Timer is called x2")
 
             val point = GeneratorView.trajectory.value.sample(t)
             t += dt
@@ -264,8 +234,6 @@ object PositionChart : LineChart<Number, Number>(
 
         }
 
-        println("End of play")
-        // ui { followerBoundingBoxSeries.data.clear() }
         ui { followerSeries.data.clear() }
 
 
