@@ -14,7 +14,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
-import kfoenix.jfxbutton
 import kfoenix.jfxtabpane
 import kfoenix.jfxtextfield
 import org.ghrobotics.falcondashboard.PIDTune.charts.VelocityGraphicChart
@@ -27,13 +26,14 @@ import org.ghrobotics.falcondashboard.Settings
 import org.ghrobotics.falcondashboard.Settings.dPID
 import org.ghrobotics.falcondashboard.Settings.dSliderMax
 import org.ghrobotics.falcondashboard.Settings.dSliderMin
-import org.ghrobotics.falcondashboard.Settings.fpSliderMin
+
 import org.ghrobotics.falcondashboard.Settings.iPID
 import org.ghrobotics.falcondashboard.Settings.iSliderMax
 import org.ghrobotics.falcondashboard.Settings.iSliderMin
 import org.ghrobotics.falcondashboard.Settings.ipNetwork
 import org.ghrobotics.falcondashboard.Settings.isDSliderValue
 import org.ghrobotics.falcondashboard.Settings.isISliderValue
+import org.ghrobotics.falcondashboard.Settings.isPSliderMax
 import org.ghrobotics.falcondashboard.Settings.isPSliderMin
 import org.ghrobotics.falcondashboard.Settings.isPSliderValue
 import org.ghrobotics.falcondashboard.Settings.isSlidersReset
@@ -46,7 +46,8 @@ import org.ghrobotics.falcondashboard.generator.charts.PositionChart
 import org.ghrobotics.lib.mathematics.units.meters
 import tornadofx.*
 import java.beans.EventHandler
-
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 
 class PIDTuneView : View() {
@@ -54,6 +55,10 @@ class PIDTuneView : View() {
     var pSlider: Slider by singleAssign()
     var iSlider: Slider by singleAssign()
     var dSlider: Slider by singleAssign()
+
+    val df = DecimalFormat("#.###")
+
+
 
 
     /*
@@ -88,22 +93,24 @@ class PIDTuneView : View() {
                  bind(mainString)
              }
 
-
+             df.roundingMode = RoundingMode.CEILING
+            //P
             createNumericalEntry("Value of P (PID)", pPID).addEventHandler(KeyEvent.KEY_PRESSED){
                 pSlider.value = pPID.value
-                mainString.set("Changed: " + isPSliderValue.value+ " " + pPID.value)
+                mainString.set("Changed: " + isPSliderValue.value+ " " + df.format(pPID.value))
             }
              hbox(spacing = 5.0){
                  label("P")
                  pSlider = slider(min = pSliderMin.value, max = pSliderMax.value, value = pPID.value)
                  pSlider.addEventHandler(MouseEvent.MOUSE_DRAGGED){
-                     mainString.set("Changed: " + isPSliderValue.value+ " " + pPID.value)
+                     mainString.set("Changed: " + isPSliderValue.value+ " " + df.format(pPID.value))
                      pPID.value = pSlider.value
-                     println(pPID.value)
+                     println(df.format(pPID.value))
                  }
 
 
              }
+
              button {
                  prefWidth = 270.0
                  text = "P Slider Interval"
@@ -113,17 +120,21 @@ class PIDTuneView : View() {
              }
 
 
-             createNumericalEntry("Value of P (PID)", iPID).addEventHandler(KeyEvent.KEY_PRESSED){
+
+              //I
+
+
+             createNumericalEntry("Value of I (PID)", iPID).addEventHandler(KeyEvent.KEY_PRESSED){
                  iSlider.value = iPID.value
-                 mainString.set("Changed: " + isISliderValue.value+ " " + iPID.value)
+                 mainString.set("Changed: " + isISliderValue.value+ " " + df.format(iPID.value))
              }
              hbox(spacing = 5.0){
                  label("I")
-                 iSlider = slider(min = iSliderMin.value, max = iSliderMax.value, value = iPID.value)
+                 iSlider = slider(min = iSliderMax.value, max = iSliderMin.value, value = iPID.value)
                  iSlider.addEventHandler(MouseEvent.MOUSE_DRAGGED){
-                     mainString.set("Changed: " + isISliderValue.value+ " " + iPID.value)
+                     mainString.set("Changed: " + isISliderValue.value+ " " + df.format(iPID.value))
                      iPID.value = iSlider.value
-                     println(iPID.value)
+                     println(df.format(iPID.value))
                  }
 
              }
@@ -136,17 +147,20 @@ class PIDTuneView : View() {
              }
 
 
-             createNumericalEntry("Value of P (PID)", dPID).addEventHandler(KeyEvent.KEY_PRESSED){
+
+             //D
+
+             createNumericalEntry("Value of D (PID)", dPID).addEventHandler(KeyEvent.KEY_PRESSED){
                  dSlider.value = dPID.value
-                 mainString.set("Changed: " + isDSliderValue.value+ " " + dPID.value)
+                 mainString.set("Changed: " + isDSliderValue.value+ " " + df.format(dPID.value))
              }
              hbox(spacing = 5.0){
                  label("")
                  dSlider = slider(min = dSliderMin.value, max = dSliderMax.value, value = dPID.value)
                  dSlider.addEventHandler(MouseEvent.MOUSE_DRAGGED){
-                     mainString.set("Changed: " + isDSliderValue.value+ " " + dPID.value)
+                     mainString.set("Changed: " + isDSliderValue.value+ " " + df.format(dPID.value))
                      dPID.value = dSlider.value
-                     println(dPID.value)
+                     println(df.format(dPID.value))
                  }
              }
              button {
@@ -157,31 +171,46 @@ class PIDTuneView : View() {
                  }
              }
 
-             button {
-                 prefWidth = 270.0
-                 text = "Reset PID Value"
-                 mainString.set("Changed: " + isSlidersReset.value)
-                 action {
-                     pPID.value = 0.0
-                     pSlider.value = 0.0
-                     iPID.value = 0.0
-                     iSlider.value = 0.0
-                     dPID.value = 0.0
-                     dSlider.value = 0.0
-                 }
-             }
+
+                button {
+                    prefWidth = 270.0
+                    text = "Reset PID Value"
+                    mainString.set("Changed: " + isSlidersReset.value)
+                    action {
+                        pPID.value = pSlider.min
+                        if(pPID.value < pSlider.min){//PID aralığının dışında kalan değerler minimuma eşitlenir
+                            pPID.value = pSlider.min
+                            pSlider.value = pPID.value
+                        }
+                        pSlider.value = pSlider.min
+                        iPID.value = iSlider.min
+                        if(iPID.value < iSlider.min){
+                            iPID.value = iSlider.min
+                        }
+                        iSlider.value = iSlider.min
+                        dPID.value = dSlider.min
+                        if(dPID.value < dSlider.min){
+                            dPID.value = dSlider.min
+                        }
+                        dSlider.value = dSlider.min
+
+                        //Aralıkları resetler
+                        pSlider.min = pSliderMin.value
+                        pSlider.max = pSliderMax.value
+                        iSlider.min = iSliderMin.value
+                        iSlider.max = iSliderMax.value
+                        dSlider.min = dSliderMin.value
+                        dSlider.max = dSliderMax.value
+                    }
+                }
+
+
 
              imageview("mascot300x300.png")
 
-
-
-
-
-
-
-
-
-
+             text("*Note: Press reset PID Value when the sliders are NaN ") {
+                 alignment = Pos.CENTER_LEFT
+             }
 
 
 

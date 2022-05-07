@@ -9,7 +9,10 @@ import org.ghrobotics.lib.mathematics.units.meters
 import tornadofx.*
 
 class WaypointFragment : Fragment() {
-    override val root = vbox { }
+    override val root = vbox {
+
+
+    }
 
     val x = SimpleDoubleProperty(0.0)
     val y = SimpleDoubleProperty(0.0)
